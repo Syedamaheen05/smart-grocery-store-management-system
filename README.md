@@ -87,8 +87,6 @@ smart-grocery-store-management-system/
 | Search value | Not empty | `Search value cannot be empty!` |
 | Menu choice | `1` to `8` | `Invalid choice! Please select from 1 to 8.` |
 
-**Known behavior (found while testing):** Python's `float()` accepts the words `nan` and `inf`, and `nan < 0` is false, so a price of `nan` is accepted by the console program (test 38). A `nan` price is then skipped when the report looks for the highest and lowest price. Prices such as `300` are stored as floats, so they print as `300.0` for products added at run time, while the four starting products keep whole-number prices. The browser demo (`index.html`) rejects `nan` and `inf` as invalid prices.
-
 ### Expected Results
 
 - Starting menu shows 4 products with total stock 48; only Sugar (stock 3) is low stock.
@@ -436,7 +434,7 @@ Exiting the system...
 
 ## 8. Test Cases
 
-Every row was run against `grocery_store.py` and the result matched the expected result, except row 38, which documents the `nan` behavior described under Input Validation.
+Every row was run against `grocery_store.py` and the result matched the expected result.
 
 | # | Scenario | Inputs | Expected result |
 |---|---|---|---|
@@ -477,8 +475,7 @@ Every row was run against `grocery_store.py` and the result matched the expected
 | 35 | Exit | Menu 8 | Goodbye message; program ends |
 | 36 | Several failures in one session | Menu 0; Menu 1 with ID ABC; Menu 1 with ID 101; Menu 1 with price -100; Menu 5 with ID 999; Menu 5 with ID 101 and quantity 999 | Each failure shows its own message; the program keeps running |
 | 37 | Full session | Add Eggs (105); sell 4 Eggs; sell 2 Milk; Menu 6; Menu 7 | Revenue Rs. 1700.0; 2 transactions; stock 67 |
-| 38 | Price accepted by float(): nan | Menu 1: ID 106, price nan, stock 1 | Accepted (no error); price prints as nan. Known limitation, see Input Validation |
-| 39 | Zero price (boundary) | Menu 1: ID 106, Freebie, price 0, stock 5; sell 2 | Accepted; Total Amount: Rs. 0.0; Remaining Stock: 3 |
+| 38 | Zero price (boundary) | Menu 1: ID 106, Freebie, price 0, stock 5; sell 2 | Accepted; Total Amount: Rs. 0.0; Remaining Stock: 3 |
 
 ---
 
