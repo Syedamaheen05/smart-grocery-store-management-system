@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Grocery Store Management System - Live Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#14213d;--paper:#f1f5f0;--card:#fff;--line:#d5ddd3;--green:#1b7f5c;--tag:#ffd23f;--red:#c0392b;--amber:#b45309;--muted:#5b6678}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;line-height:1.45}
+header{background:var(--ink);color:#fff;padding:22px clamp(16px,4vw,40px);border-bottom:6px solid var(--tag)}
+header h1{margin:0;font-size:clamp(22px,4vw,34px);font-weight:800;letter-spacing:-.5px}
+header p{margin:4px 0 0;color:#c9d3e6;font-size:15px;max-width:70ch}
+main{display:grid;gap:20px;padding:20px clamp(16px,4vw,40px);max-width:1280px;margin:auto}
+@media(min-width:960px){main{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);align-items:start}.term-wrap{position:sticky;top:16px}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+h2{margin:0 0 10px;font-size:18px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tabs button{font:inherit;font-weight:700;font-size:14px;padding:8px 12px;border:1.5px solid var(--ink);background:#fff;color:var(--ink);border-radius:8px;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--ink);color:#fff}
+.tabs button.exit{border-color:var(--red);color:var(--red)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #2563eb;outline-offset:2px}
+form{display:grid;gap:10px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+label{display:grid;gap:3px;font-size:13px;font-weight:700;color:var(--muted)}
+input,select{font:inherit;font-weight:500;padding:9px 10px;border:1.5px solid #aab5a8;border-radius:8px;background:#fff;color:var(--ink);width:100%}
+.run{justify-self:start;font:inherit;font-weight:800;padding:10px 18px;border:0;border-radius:8px;background:var(--green);color:#fff;cursor:pointer}
+.hint{font-size:13px;color:var(--muted);margin:0}
+[hidden]{display:none!important}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:12px;color:var(--muted);padding:6px 8px;border-bottom:2px solid var(--ink)}
+td{padding:8px;border-bottom:1px solid var(--line)}
+.price{background:var(--tag);font-weight:800;padding:3px 9px;border-radius:4px;white-space:nowrap;display:inline-block}
+.stock{font-weight:700}.low{color:var(--red)}
+.low::after{content:" low";font-size:11px;background:#fde4e1;padding:1px 6px;border-radius:10px;margin-left:4px}
+.wrap{overflow-x:auto}
+.sum{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:14px;color:var(--muted)}
+.sum b{color:var(--ink)}
+.term{background:#0b1220;color:#e2e8f0;border-radius:12px;overflow:hidden;border:1px solid #1e293b}
+.term-bar{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#1e293b;font-size:13px;color:#94a3b8}
+.term-bar button{font:inherit;font-size:12px;background:transparent;color:#cbd5e1;border:1px solid #475569;border-radius:6px;padding:3px 10px;cursor:pointer}
+pre{margin:0;padding:14px;font:13px/1.45 Consolas,'Courier New',monospace;height:min(68vh,560px);overflow:auto;white-space:pre-wrap;word-break:break-word}
+.e{color:#fca5a5}.ok{color:#86efac}
+footer{padding:8px clamp(16px,4vw,40px) 28px;text-align:center;color:var(--muted);font-size:14px}
+a{color:#1d4ed8}
+</style>
+</head>
+<body>
+<header>
+  <h1>Smart Grocery Store Management System</h1>
+  <p>Live demo of the Python console project. Pick an option, fill the form and watch the console panel print the same messages as <code>grocery_store.py</code>. Data lives in your browser tab only.</p>
+</header>
+<main>
+<div>
+  <section class="card" aria-label="Store menu">
+    <h2>Store menu</h2>
+    <div class="tabs" role="tablist" id="tabs"></div>
+
+    <form id="f1" data-op="1" hidden>
+      <div class="row"><label>Product ID<input name="id" inputmode="numeric" autocomplete="off" placeholder="105"></label>
+      <label>Product name<input name="name" autocomplete="off" placeholder="Eggs"></label></div>
+      <div class="row"><label>Category<input name="cat" autocomplete="off" placeholder="Dairy"></label>
+      <label>Price (Rs.)<input name="price" inputmode="decimal" autocomplete="off" placeholder="300"></label>
+      <label>Available stock<input name="stock" inputmode="numeric" autocomplete="off" placeholder="25"></label></div>
+      <button class="run">Add product</button>
+    </form>
+    <form id="f2" data-op="2" hidden><p class="hint">Prints every product, one after another.</p><button class="run">View all products</button></form>
+    <form id="f3" data-op="3" hidden>
+      <label>Product name or ID<input name="q" autocomplete="off" placeholder="Milk or 101"></label>
+      <p class="hint">Digits are searched as an ID. Anything else is matched to a product name (not case sensitive).</p>
+      <button class="run">Search</button>
+    </form>
+    <form id="f4" data-op="4" hidden>
+      <div class="row"><label>Product ID<input name="id" inputmode="numeric" autocomplete="off" placeholder="101"></label>
+      <label>Action<select name="mode"><option value="1">Add stock</option><option value="2">Set stock quantity</option></select></label>
+      <label>Quantity<input name="qty" inputmode="numeric" autocomplete="off" placeholder="10"></label></div>
+      <button class="run">Update stock</button>
+    </form>
+    <form id="f5" data-op="5" hidden>
+      <div class="row"><label>Product ID<input name="id" inputmode="numeric" autocomplete="off" placeholder="101"></label>
+      <label>Purchase quantity<input name="qty" inputmode="numeric" autocomplete="off" placeholder="2"></label></div>
+      <button class="run">Complete sale</button>
+    </form>
+    <form id="f6" data-op="6" hidden><p class="hint">Lists every completed sale of this session.</p><button class="run">View sales records</button></form>
+    <form id="f7" data-op="7" hidden><p class="hint">Totals, low stock (under 5 units), highest and lowest price.</p><button class="run">Generate store report</button></form>
+    <form id="f8" data-op="8" hidden><p class="hint">Prints the goodbye message. You can keep using the demo afterwards, or restore the 4 starting products.</p>
+      <div><button class="run" style="background:var(--red)">Exit</button> <button type="button" class="run" id="reset" style="background:var(--ink)">Reset demo data</button></div>
+    </form>
+  </section>
+
+  <section class="card" style="margin-top:20px" aria-label="Products on the shelf">
+    <h2>Shelf (current products)</h2>
+    <div class="wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th></tr></thead><tbody id="shelf"></tbody></table></div>
+    <div class="sum"><span>Sales this session: <b id="sCount">0</b></span><span>Revenue: <b id="sRev">Rs. 0</b></span></div>
+  </section>
+</div>
+
+<div class="term-wrap">
+  <div class="term">
+    <div class="term-bar"><span>Console output</span><button type="button" id="clear">Clear</button></div>
+    <pre id="out" aria-live="polite"></pre>
+  </div>
+</div>
+</main>
+<footer>Browser version of <a href="grocery_store.py">grocery_store.py</a> by Syyeda Maheen Bukhari (<a href="https://github.com/Syedamaheen05">@Syedamaheen05</a>)</footer>
+
+<script>
+// ---- Data (same starting records as grocery_store.py). pf = price came from float() ----
+const START=()=>[{id:101,name:"Milk",category:"Dairy",price:250,stock:20},{id:102,name:"Bread",category:"Bakery",price:150,stock:15},{id:103,name:"Rice",category:"Grains",price:300,stock:10},{id:104,name:"Sugar",category:"Grocery",price:180,stock:3}];
+let products=START(), sales=[];
+const LOW_STOCK_LIMIT=5, BAR="====================================", DASH="------------------------------------";
+const out=document.getElementById("out");
+
+// ---- Helpers ----
+const num=(v,f)=>f&&Number.isInteger(v)?v.toFixed(1):String(v);          // Python prints 300.0 for floats
+const pyInt=s=>/^\s*[+-]?\d+\s*$/.test(s)?parseInt(s,10):null;            // int() style parsing
+const pyFloat=s=>{const t=s.trim();if(!/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(t))return null;const v=Number(t);return Number.isFinite(v)?v:null};
+const P=(label,val)=>`${label} ${val}`;
+function say(lines,cls){const t=Array.isArray(lines)?lines.join("\n"):lines;const s=document.createElement("span");if(cls)s.className=cls;s.textContent=t+"\n";out.appendChild(s);out.scrollTop=out.scrollHeight}
+const hdr=t=>say(["",BAR,t,BAR]);
+const err=m=>say(m,"e");
+const find_product=id=>products.find(p=>p.id===id)||null;
+function showProduct(p){say([P("Product ID:",p.id),P("Product Name:",p.name),P("Category:",p.category),P("Price: Rs.",num(p.price,p.pf)),P("Available Stock:",p.stock)])}
+
+// ---- Operations (same order of checks and same messages as the Python functions) ----
+function addProduct(f){
+  hdr("          ADD NEW PRODUCT");
+  const id=pyInt(f.id.value);
+  if(id===null)return err("Invalid Product ID! Enter a numeric value.");
+  if(id<=0)return err("Product ID must be greater than zero!");
+  if(find_product(id))return err("Product ID already exists! Try another ID.");
+  const name=f.name.value.trim(); if(name==="")return err("Product name cannot be empty!");
+  const cat=f.cat.value.trim(); if(cat==="")return err("Product category cannot be empty!");
+  const price=pyFloat(f.price.value); if(price===null)return err("Invalid price! Enter a numeric value.");
+  if(price<0)return err("Price cannot be negative!");
+  const stock=pyInt(f.stock.value); if(stock===null)return err("Invalid stock! Enter a whole number.");
+  if(stock<0)return err("Stock cannot be negative!");
+  const p={id,name,category:cat,price,stock,pf:true}; products.push(p);
+  say(["","Product added successfully!"],"ok"); showProduct(p); f.reset();
+}
+function viewAll(){
+  hdr("          ALL PRODUCTS");
+  if(!products.length)return say("No products available in the store.");
+  products.forEach(p=>{say(DASH);showProduct(p)}); say(DASH);
+}
+function searchProduct(f){
+  hdr("          SEARCH PRODUCT");
+  if(!products.length)return say("No products available in the store.");
+  const q=f.q.value.trim(); if(q==="")return err("Search value cannot be empty!");
+  const card=p=>{say(["","Product Found!",DASH],"ok");showProduct(p);say(DASH)};
+  if(/^\d+$/.test(q)){const p=find_product(parseInt(q,10));p?card(p):err("Product with this ID does not exist!")}
+  else{let found=false;products.forEach(p=>{if(p.name.toLowerCase()===q.toLowerCase()){card(p);found=true}});if(!found)err("Product with this name does not exist!")}
+}
+function updateStock(f){
+  hdr("        UPDATE PRODUCT STOCK");
+  const id=pyInt(f.id.value);
+  if(id===null)return err("Invalid Product ID! Enter a numeric value.");
+  if(id<=0)return err("Product ID must be greater than zero!");
+  const p=find_product(id); if(!p)return err("Product does not exist!");
+  say(["",P("Product Name:",p.name),P("Current Stock:",p.stock),"","1. Add Stock","2. Set Stock Quantity",P("Enter your choice:",f.mode.value)]);
+  const q=pyInt(f.qty.value);
+  if(f.mode.value==="1"){
+    if(q===null)return err("Invalid quantity! Enter a whole number.");
+    if(q<=0)return err("Quantity must be greater than zero!");
+    p.stock+=q; say(["","Stock added successfully!"],"ok");
+  }else{
+    if(q===null)return err("Invalid quantity! Enter a whole number.");
+    if(q<0)return err("Stock cannot be negative!");
+    p.stock=q; say(["","Stock quantity updated successfully!"],"ok");
+  }
+  say([DASH,P("Product Name:",p.name),P("Product ID:",p.id),P("Updated Stock:",p.stock),DASH]);
+}
+function processSale(f){
+  hdr("        PROCESS CUSTOMER SALE");
+  const id=pyInt(f.id.value);
+  if(id===null)return err("Invalid Product ID! Enter a numeric value.");
+  if(id<=0)return err("Product ID must be greater than zero!");
+  const p=find_product(id); if(!p)return err("Product does not exist!");
+  say(["",P("Product Name:",p.name),P("Price: Rs.",num(p.price,p.pf)),P("Available Stock:",p.stock)]);
+  const q=pyInt(f.qty.value);
+  if(q===null)return err("Invalid quantity! Enter a whole number.");
+  if(q<=0)return err("Purchase quantity must be greater than zero!");
+  if(q>p.stock)return err(["Insufficient stock!",P("Available Stock:",p.stock),P("Requested Quantity:",q)]);
+  const total=p.price*q; p.stock-=q;
+  sales.push({product_id:p.id,product_name:p.name,quantity:q,total_amount:total,tf:!!p.pf});
+  say(["",BAR,"        PURCHASE SUMMARY",BAR,P("Product ID:",p.id),P("Product Name:",p.name),P("Price per Unit: Rs.",num(p.price,p.pf)),
+       P("Quantity Purchased:",q),P("Total Amount: Rs.",num(total,p.pf)),P("Remaining Stock:",p.stock),BAR]);
+  say("Sale completed successfully!","ok"); f.reset();
+}
+function viewSales(){
+  hdr("          SALES RECORDS");
+  if(!sales.length)return say("No sales transactions recorded yet.");
+  sales.forEach(s=>say([DASH,P("Product ID:",s.product_id),P("Product Name:",s.product_name),P("Quantity Sold:",s.quantity),P("Total Amount: Rs.",num(s.total_amount,s.tf))]));
+  say(DASH);
+}
+function storeReport(){
+  hdr("          STORE REPORT");
+  if(!products.length)return say("No products available for store report.");
+  let stock=0,revenue=0,rf=false;
+  products.forEach(p=>stock+=p.stock);
+  sales.forEach(s=>{revenue+=s.total_amount;if(s.tf)rf=true});
+  const low=products.filter(p=>p.stock<LOW_STOCK_LIMIT);
+  let hi=products[0],lo=products[0];
+  products.forEach(p=>{if(p.price>hi.price)hi=p;if(p.price<lo.price)lo=p});
+  say([P("Total Number of Products:",products.length),P("Total Available Stock:",stock),P("Total Sales Transactions:",sales.length),P("Total Revenue Generated: Rs.",num(revenue,rf))]);
+  say(["",DASH,"       LOW STOCK PRODUCTS",DASH]);
+  if(!low.length)say("No products have stock below 5 units."); else low.forEach(p=>say(`${p.name} - Stock: ${p.stock} - ID: ${p.id}`));
+  [["HIGHEST PRICE PRODUCT",hi],["LOWEST PRICE PRODUCT",lo]].forEach(([t,p])=>say(["",DASH,"       "+t,DASH,P("Product Name:",p.name),P("Product ID:",p.id),P("Price: Rs.",num(p.price,p.pf))]));
+  say(["",BAR,"       END OF STORE REPORT",BAR]);
+}
+function exitApp(){say(["",BAR,"Thank you for using Grocery Store!","Exiting the system...",BAR],"ok")}
+
+// ---- UI wiring ----
+const OPS={1:["1 Add product",addProduct],2:["2 View all",viewAll],3:["3 Search",searchProduct],4:["4 Update stock",updateStock],5:["5 Sale",processSale],6:["6 Sales records",viewSales],7:["7 Report",storeReport],8:["8 Exit",exitApp]};
+const tabs=document.getElementById("tabs");
+function show(n){
+  tabs.querySelectorAll("button").forEach(b=>b.setAttribute("aria-selected",b.dataset.n==n));
+  document.querySelectorAll("form[data-op]").forEach(f=>f.hidden=f.dataset.op!=n);
+}
+Object.entries(OPS).forEach(([n,[label]])=>{
+  const b=document.createElement("button");b.type="button";b.role="tab";b.dataset.n=n;b.textContent=label;if(n==8)b.className="exit";
+  b.onclick=()=>show(n);tabs.appendChild(b);
+});
+document.querySelectorAll("form[data-op]").forEach(f=>f.addEventListener("submit",e=>{e.preventDefault();OPS[f.dataset.op][1](f);render()}));
+function render(){
+  const body=document.getElementById("shelf");body.replaceChildren();
+  products.forEach(p=>{
+    const tr=body.insertRow();
+    [p.id,p.name,p.category].forEach(v=>tr.insertCell().textContent=v);
+    const pc=tr.insertCell(),sp=document.createElement("span");sp.className="price";sp.textContent="Rs. "+num(p.price,p.pf);pc.appendChild(sp);
+    const sc=tr.insertCell();sc.textContent=p.stock;sc.className="stock"+(p.stock<LOW_STOCK_LIMIT?" low":"");
+  });
+  let rev=0,rf=false;sales.forEach(s=>{rev+=s.total_amount;if(s.tf)rf=true});
+  document.getElementById("sCount").textContent=sales.length;
+  document.getElementById("sRev").textContent="Rs. "+num(rev,rf);
+}
+document.getElementById("clear").onclick=()=>{out.textContent=""};
+document.getElementById("reset").onclick=()=>{products=START();sales=[];say(["","Demo data reset to the 4 starting products."],"ok");render()};
+say(["====================================","     SMART GROCERY STORE SYSTEM","====================================","Choose an option above (1-8) to begin."]);
+show(1);render();
+</script>
+</body>
+</html>
